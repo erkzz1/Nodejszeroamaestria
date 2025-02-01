@@ -20,7 +20,7 @@ const authRoutes = require('./routes/authRoutes')
 // Import Controller
 const ToughtController = require('./controllers/ToughtController')
 
-//Config Handlebars Time
+//Config Handlebars Time tempo
 const hbs = exphbs.create({
   helpers: {
     formatDate: (date) => {
