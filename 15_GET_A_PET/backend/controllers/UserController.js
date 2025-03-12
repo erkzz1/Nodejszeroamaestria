@@ -43,7 +43,6 @@ module.exports = class UserController {
       name,
       email,
       phone,
-      phone,
       password: passwordHash,
     })
 

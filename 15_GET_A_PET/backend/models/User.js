@@ -1,5 +1,6 @@
 const mongoose = require('../db/conn')
 const { Schema } = mongoose
+const moment = require('moment-timezone')
 
 const User = mongoose.model(
   'User',
@@ -9,29 +10,26 @@ const User = mongoose.model(
         type: String,
         required: true,
       },
-      age: {
-        type: Number,
-        required: true,
-      },
-      weight: {
-        type: Number,
-        required: true,
-      },
-      color: {
+      email: {
         type: String,
         required: true,
       },
-      images: {
-        type: Array,
+      password: {
+        type: String,
         required: true,
       },
-      avaliable: {
-        type: Boolean,
+      image: {
+        type: String,
       },
-      user: Object,
-      adopter: Object,
+      phone: {
+        type: String,
+        required: true,
+      },
     },
-    { timestamps: true }
+
+    {
+      timestamps: true
+    },
   )
 )
 
