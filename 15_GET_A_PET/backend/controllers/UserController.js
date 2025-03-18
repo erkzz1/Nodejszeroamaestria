@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken')
 //helpers
 const createUserToken = require('../helpers/create-user-token')
 const getToken = require('../helpers/get-token')
+const getUserByToken = require('../helpers/get-user-by-token')
 
 function validateFields(fields, body) {
   for (const [field, message] of Object.entries(fields)) {
@@ -16,6 +17,7 @@ function validateFields(fields, body) {
   }
   return { valid: true }
 }
+
 module.exports = class UserController {
   static async register(req, res) {
     const { name, email, phone, password, confirmpassword } = req.body
@@ -137,9 +139,58 @@ module.exports = class UserController {
   }
 
   static async editUser(req, res) {
-    res.status(200).json({
-      message: 'Deu bom o update!',
-    })
-    return
+    const id = req.params.id
+
+    // check if user exists
+    const token = getToken(req)
+    const user = await getUserByToken(token)
+
+    const { name, email, phone, password, confirmpassword } = req.body
+
+    if (req.file) {
+      user.image = req.file.filename
+    }
+
+    //validations
+    const validations = {
+      name: 'O nome é obrigatório!',
+      email: 'O email é obrigatório!',
+      phone: 'O telefone é obrigatório!',
+    }
+    const validation = validateFields(validations, req.body)
+    if (!validation.valid) {
+      res.status(422).json({ message: validation.message })
+      return
+    }
+
+    const userExists = await User.findOne({ email: email })
+
+    //check if email already taken
+    if (user.email !== email && userExists) {
+      res.status(422).json({ message: 'Por favor utilize outro e-mail!' })
+      return
+    }
+    user.name = name
+    user.email = email
+    user.phone = phone
+
+    if (password !== confirmpassword) {
+      res.status(422).json({ message: 'As senhas não condizem!' })
+      return
+    } else if (password === confirmpassword && password != null) {
+      // creatig new password
+      const salt = await bcrypt.genSalt(12)
+      const passwordHash = await bcrypt.hash(password, salt)
+
+      user.password = passwordHash
+    }
+    try {
+      await User.findOneAndUpdate({ _id: id }, { $set: user }, { new: true })
+
+      res.status(200).json({ message: 'Usuário atualizado com sucesso!' })
+    } catch (error) {
+      res.status(500).json({ message: error })
+      return
+    }
   }
 }
