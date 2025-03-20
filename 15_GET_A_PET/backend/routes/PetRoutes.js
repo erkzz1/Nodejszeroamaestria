@@ -5,6 +5,7 @@ const PetCotroller = require('../controllers/PetController')
 //middlewares
 const verifyToken = require('../helpers/verify-token')
 const { imageUpload } = require('../helpers/image-upload')
+const PetController = require('../controllers/PetController')
 
 router.post(
   '/create',
@@ -12,5 +13,5 @@ router.post(
   imageUpload.array('images'),
   PetCotroller.create
 )
-
+router.get('/', PetController.getAll)
 module.exports = router
