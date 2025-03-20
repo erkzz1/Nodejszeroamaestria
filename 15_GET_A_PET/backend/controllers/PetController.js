@@ -29,7 +29,6 @@ module.exports = class PetController {
       age: 'A idade é obrigatório!',
       weight: 'O peso é obrigatório!',
       color: 'A cor é obrigatória!',
-      
     }
 
     const validation = validateFields(validations, req.body)
@@ -38,8 +37,8 @@ module.exports = class PetController {
       return
     }
 
-    if(images.length === 0) {
-      res.status(422).json({ message:'A imagem é obrigatória!',})
+    if (images.length === 0) {
+      res.status(422).json({ message: 'A imagem é obrigatória!' })
       return
     }
 
@@ -79,11 +78,22 @@ module.exports = class PetController {
   }
 
   static async getAll(req, res) {
-
     const pets = await Pet.find().sort('-createdAt')
 
     res.status(200).json({
       pets: pets,
+    })
+  }
+
+  static async getAllUserPets(req, res) {
+    //get user from token
+    const token = getToken(req)
+    const user = await getUserByToken(token)
+
+    const pets = await Pet.find({'user._id' : user._id}).sort('-createdAt')
+
+    res.status(200).json({
+      pets,
     })
   }
 }
