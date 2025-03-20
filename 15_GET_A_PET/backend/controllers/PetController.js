@@ -3,6 +3,7 @@ const Pet = require('../models/Pet')
 //helpers
 const getToken = require('../helpers/get-token')
 const getUserByToken = require('../helpers/get-user-by-token')
+const ObjectId = require('mongoose').Types.ObjectId
 
 function validateFields(fields, body) {
   for (const [field, message] of Object.entries(fields)) {
@@ -90,10 +91,42 @@ module.exports = class PetController {
     const token = getToken(req)
     const user = await getUserByToken(token)
 
-    const pets = await Pet.find({'user._id' : user._id}).sort('-createdAt')
+    const pets = await Pet.find({ 'user._id': user._id }).sort('-createdAt')
 
     res.status(200).json({
       pets,
+    })
+  }
+
+  static async getAllUserAdoptions(req, res) {
+    const token = getToken(req)
+    const user = await getUserByToken(token)
+
+    const pets = await Pet.find({ 'adopter._id': user._id }).sort('-createdAt')
+
+    res.status(200).json({
+      pets,
+    })
+  }
+
+  static async getPetById(req, res) {
+    const id = req.params.id
+
+    if (!ObjectId.isValid(id)) {
+      res.status(422).json({
+        message: 'ID inválido!',
+      })
+      return
+    }
+    // check if pet exists
+    const pet = await Pet.findOne({_id: id})
+    if(!pet){
+      res.status(404).json({
+        message: 'Pet não encontrado'
+      })
+    }
+    res.status(200).json({
+      pet: pet,
     })
   }
 }
