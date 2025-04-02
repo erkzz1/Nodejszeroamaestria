@@ -4,6 +4,10 @@ const bcrypt = require('bcrypt')
 
 const jwt = require('jsonwebtoken')
 
+const fs = require('fs')
+
+const path = require('path')
+
 //helpers
 const createUserToken = require('../helpers/create-user-token')
 const getToken = require('../helpers/get-token')
@@ -148,6 +152,17 @@ module.exports = class UserController {
     const { name, email, phone, password, confirmpassword } = req.body
 
     if (req.file) {
+      // Remove imagem antiga, se existir
+      if (user.image) {
+        const oldImagePath = path.join(
+          __dirname,
+          '../../public/images',
+          user.image
+        )
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath)
+        }
+      }
       user.image = req.file.filename
     }
 
